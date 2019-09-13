@@ -166,38 +166,66 @@ class Wp_Book_Admin {
 	}
 
 	public function add_book_metabox_html( $post ) {
+		$author = get_metadata( 'book', $post->ID, 'author-name', true );
+		$price = get_metadata( 'book', $post->ID, 'price', true );
+		$publisher = get_metadata( 'book', $post->ID, 'publisher', true );
+		$year = get_metadata( 'book', $post->ID, 'year', true );
+		$edition = get_metadata( 'book', $post->ID, 'edition', true );
+		$url = get_metadata( 'book', $post->ID, 'url', true );
 		?>
 		<table border=1>
 			<tr>
 				<td>
 					<label for="author-name">Author Name</label>
-					<input type="text" id="author-name" required>
+					<input form="post" type="text" id="author-name" name="author-name" value="<?= esc_attr( $author ) ?>">
 				</td>
 				<td>
 					<label for="price">Price</label>
-					<input type="text" id="price" required>
+					<input form="post" type="text" id="price" name="price" value="<?= esc_attr( $price ) ?>">
 				</td>
 				<td>
 					<label for="publisher">Publisher</label>
-					<input type="text" id="publisher" required>
+					<input form="post" type="text" id="publisher" name="publisher" value="<?= esc_attr( $publisher ) ?>">
 				</td>
 			</tr>
 			<tr>
 				<td>
 					<label for="year">Year</label>
-					<input type="text" id="year" required>
+					<input form="post" type="text" id="year" name="year" value="<?= esc_attr( $year ) ?>">
 				</td>
 				<td>
 					<label for="edition">Edition</label>
-					<input type="text" id="edition" required>
+					<input form="post" type="text" id="edition" name="edition" value="<?= esc_attr( $edition ) ?>">
 				</td>
 				<td>
 					<label for="url">URL</label>
-					<input type="text" id="url" required>
+					<input form="post" type="text" id="url" name="url" value="<?= esc_attr( $url ) ?>">
 				</td>
 			</tr>
 		</table>
 		<?php
+	}
+
+	public function register_book_metatable() {
+		global $wpdb;
+
+		$wpdb->bookmeta = $wpdb->prefix . 'bookmeta';
+	}
+
+	public function save_metadata( $post_ID, $post, $update ) {
+		$author = filter_input( INPUT_POST, 'author-name', FILTER_SANITIZE_STRING );
+		$price = filter_input( INPUT_POST, 'price', FILTER_SANITIZE_STRING );
+		$publisher = filter_input( INPUT_POST, 'publisher', FILTER_SANITIZE_STRING );
+		$year = filter_input( INPUT_POST, 'year', FILTER_SANITIZE_STRING );
+		$edition = filter_input( INPUT_POST, 'edition', FILTER_SANITIZE_STRING );
+		$url = filter_input( INPUT_POST, 'url', FILTER_SANITIZE_STRING );
+
+		update_metadata( 'book', $post_ID, 'author-name', $author );
+		update_metadata( 'book', $post_ID, 'price', $price );
+		update_metadata( 'book', $post_ID, 'publisher', $publisher );
+		update_metadata( 'book', $post_ID, 'year', $year );
+		update_metadata( 'book', $post_ID, 'edition', $edition );
+		update_metadata( 'book', $post_ID, 'url', $url );
 	}
 
 }

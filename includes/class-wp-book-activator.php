@@ -29,7 +29,23 @@ class Wp_Book_Activator {
 	 * @since    1.0.0
 	 */
 	public static function activate() {
-		
+		global $wpdb;
+
+		$table_name = $wpdb->prefix . 'bookmeta';
+		$charset_collate = $wpdb->get_charset_collate();
+
+		$sql = "CREATE TABLE $table_name (
+		meta_id bigint(20) NOT NULL AUTO_INCREMENT,
+		book_id bigint(20) NOT NULL,
+		meta_key varchar(255) DEFAULT NULL,
+		meta_value longtext DEFAULT '',
+		PRIMARY KEY  (meta_id),
+		KEY book_id (book_id),
+		KEY meta_key (meta_key)
+		) $charset_collate;";
+
+		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+		dbDelta( $sql );
 	}
 
 }
