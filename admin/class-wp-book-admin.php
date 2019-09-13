@@ -132,6 +132,72 @@ class Wp_Book_Admin {
 		);
 
 		register_post_type( 'wp-book', $args );
+
+		$labels = array(
+			'name' => __( 'Book Categories', 'wp-book' ),
+			'singular_name' => __( 'Book Category', 'wp-book' )
+		);
+
+		$args = array(
+			'hierarchical' => true,
+			'labels' => $labels,
+			'public' => true,
+		);
+
+		register_taxonomy( 'wp-book-category', array( 'wp-book' ), $args );
+
+
+		$labels = array(
+			'name' => __( 'Book Tags', 'wp-book' ),
+			'singular_name' => __( 'Book Tag', 'wp-book' )
+		);
+
+		$args = array(
+			'hierarchical' => false,
+			'labels' => $labels,
+			'public' => true,
+		);
+
+		register_taxonomy( 'wp-book-tag', array( 'wp-book' ), $args );
+	}
+
+	public function add_book_metabox() {
+		add_meta_box( 'wp-book-metabox', __( 'Book Meta Information', 'wp-book' ), array( $this, 'add_book_metabox_html' ), 'wp-book' );
+	}
+
+	public function add_book_metabox_html( $post ) {
+		?>
+		<table border=1>
+			<tr>
+				<td>
+					<label for="author-name">Author Name</label>
+					<input type="text" id="author-name" required>
+				</td>
+				<td>
+					<label for="price">Price</label>
+					<input type="text" id="price" required>
+				</td>
+				<td>
+					<label for="publisher">Publisher</label>
+					<input type="text" id="publisher" required>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="year">Year</label>
+					<input type="text" id="year" required>
+				</td>
+				<td>
+					<label for="edition">Edition</label>
+					<input type="text" id="edition" required>
+				</td>
+				<td>
+					<label for="url">URL</label>
+					<input type="text" id="url" required>
+				</td>
+			</tr>
+		</table>
+		<?php
 	}
 
 }
