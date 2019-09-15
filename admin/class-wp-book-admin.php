@@ -172,16 +172,19 @@ class Wp_Book_Admin {
 		$year = get_metadata( 'book', $post->ID, 'year', true );
 		$edition = get_metadata( 'book', $post->ID, 'edition', true );
 		$url = get_metadata( 'book', $post->ID, 'url', true );
+
+		$currency = get_option( 'wp-book-currency', '₹' );
+
 		?>
-		<table border=1>
+		<table>
 			<tr>
 				<td>
 					<label for="author-name">Author Name</label>
 					<input form="post" type="text" id="author-name" name="author-name" value="<?= esc_attr( $author ) ?>">
 				</td>
 				<td>
-					<label for="price">Price</label>
-					<input form="post" type="text" id="price" name="price" value="<?= esc_attr( $price ) ?>">
+					<label for="price">Price (<?= esc_html( $currency ) ?>)</label>
+					<input form="post" type="number" id="price" name="price" value="<?= esc_attr( $price ) ?>">
 				</td>
 				<td>
 					<label for="publisher">Publisher</label>
