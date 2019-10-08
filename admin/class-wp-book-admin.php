@@ -176,35 +176,37 @@ class Wp_Book_Admin {
 		$currency = get_option( 'wp-book-currency', '₹' );
 
 		?>
-		<table>
-			<tr>
-				<td>
-					<label for="author-name">Author Name</label>
-					<input form="post" type="text" id="author-name" name="author-name" value="<?= esc_attr( $author ) ?>">
-				</td>
-				<td>
-					<label for="price">Price (<?= esc_html( $currency ) ?>)</label>
-					<input form="post" type="number" id="price" name="price" value="<?= esc_attr( $price ) ?>">
-				</td>
-				<td>
-					<label for="publisher">Publisher</label>
-					<input form="post" type="text" id="publisher" name="publisher" value="<?= esc_attr( $publisher ) ?>">
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<label for="year">Year</label>
-					<input form="post" type="text" id="year" name="year" value="<?= esc_attr( $year ) ?>">
-				</td>
-				<td>
-					<label for="edition">Edition</label>
-					<input form="post" type="text" id="edition" name="edition" value="<?= esc_attr( $edition ) ?>">
-				</td>
-				<td>
-					<label for="url">URL</label>
-					<input form="post" type="text" id="url" name="url" value="<?= esc_attr( $url ) ?>">
-				</td>
-			</tr>
+		<table class="form-table">
+			<tbody>
+				<tr>
+					<td>
+						<label for="author-name">Author</label>
+						<input form="post" type="text" id="author-name" name="author-name" value="<?= esc_attr( $author ) ?>">
+					</td>
+					<td>
+						<label for="price">Price (<?= esc_html( $currency ) ?>)</label>
+						<input form="post" type="number" id="price" name="price" value="<?= esc_attr( $price ) ?>">
+					</td>
+					<td>
+						<label for="publisher">Publisher</label>
+						<input form="post" type="text" id="publisher" name="publisher" value="<?= esc_attr( $publisher ) ?>">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<label for="year">Year</label>
+						<input form="post" type="text" id="year" name="year" value="<?= esc_attr( $year ) ?>">
+					</td>
+					<td>
+						<label for="edition">Edition</label>
+						<input form="post" type="text" id="edition" name="edition" value="<?= esc_attr( $edition ) ?>">
+					</td>
+					<td>
+						<label for="url">URL</label>
+						<input form="post" type="text" id="url" name="url" value="<?= esc_attr( $url ) ?>">
+					</td>
+				</tr>
+			</tbody>
 		</table>
 		<?php
 	}
