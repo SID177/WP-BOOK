@@ -156,10 +156,12 @@ class Wp_Book {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 
-		$this->loader->add_action( 'init', $plugin_admin, 'register_book_cpt_taxonomies' );
+		$this->loader->add_action( 'init', $plugin_admin, 'init' );
 		$this->loader->add_action( 'add_meta_boxes', $plugin_admin, 'add_book_metabox' );
 		$this->loader->add_action( 'save_post_wp-book', $plugin_admin, 'save_metadata', 10, 3 );
 		$this->loader->add_action( 'plugins_loaded', $plugin_admin, 'register_book_metatable' );
+		$this->loader->add_action( 'admin_init', $plugin_admin, 'settings_init' );
+		$this->loader->add_action( 'admin_menu', $plugin_admin, 'admin_menu' );
 
 	}
 

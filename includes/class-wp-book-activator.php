@@ -47,7 +47,8 @@ class Wp_Book_Activator {
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 		dbDelta( $sql );
 
-		update_option( 'wp-book-currency', '₹' );
+		update_option( 'wp-book-currency', 'INR' );
+		update_option( 'wp-book-books-displayed-per-page', '5' );
 	}
 
 }

@@ -99,66 +99,115 @@ class Wp_Book_Admin {
 
 	}
 
-	public function register_book_cpt_taxonomies() {
+	public function init() {
 		$labels = array(
-			'name' => _x( 'Books', 'Book general name', 'wp-book' ),
-			'singular_name' => _x( 'Book', 'Book singular name', 'wp-book' ),
-			'add_new' => _x( 'Add New', 'Add new book', 'wp-book' ),
-			'add_new_item' => __( 'Add New Book', 'wp-book' ),
-			'edit_item' => __( 'Edit Book', 'wp-book' ),
-			'new_item' => __( 'New Book', 'wp-book' ),
-			'view_item' => __( 'View Book', 'wp-book' ),
-			'search_items' => __( 'Search Books', 'wp-book' ),
-			'not_found' => __( 'No books found', 'wp-book' ),
-			'all_items' => __( 'All Books', 'wp-book' ),
-			'archives' => __( 'Book Archives', 'wp-book' ),
-			'attributes' => __( 'Book Attributes', 'wp-book' ),
-			'insert_into_item' => __( 'Insert into Book', 'wp-book' ),
-			'uploaded_to_this_item' => __( 'Uploaded to this Book', 'wp-book' ),
-			'filter_items_list' => __( 'Filter Books list', 'wp-book' ),
-			'items_list_navigation' => __( 'Books list navigation', 'wp-book' ),
-			'items_list' => __( 'Books list', 'wp-book' ),
-			'item_published' => __( 'Book published', 'wp-book' ),
+			'name'                     => _x( 'Books', 'Book general name', 'wp-book' ),
+			'singular_name'            => _x( 'Book', 'Book singular name', 'wp-book' ),
+			'add_new'                  => _x( 'Add New', 'Add new book', 'wp-book' ),
+			'add_new_item'             => __( 'Add New Book', 'wp-book' ),
+			'edit_item'                => __( 'Edit Book', 'wp-book' ),
+			'new_item'                 => __( 'New Book', 'wp-book' ),
+			'view_item'                => __( 'View Book', 'wp-book' ),
+			'search_items'             => __( 'Search Books', 'wp-book' ),
+			'not_found'                => __( 'No books found', 'wp-book' ),
+			'all_items'                => __( 'All Books', 'wp-book' ),
+			'archives'                 => __( 'Book Archives', 'wp-book' ),
+			'attributes'               => __( 'Book Attributes', 'wp-book' ),
+			'insert_into_item'         => __( 'Insert into Book', 'wp-book' ),
+			'uploaded_to_this_item'    => __( 'Uploaded to this Book', 'wp-book' ),
+			'filter_items_list'        => __( 'Filter Books list', 'wp-book' ),
+			'items_list_navigation'    => __( 'Books list navigation', 'wp-book' ),
+			'items_list'               => __( 'Books list', 'wp-book' ),
+			'item_published'           => __( 'Book published', 'wp-book' ),
 			'item_published_privately' => __( 'Book published privately', 'wp-book' ),
-			'item_reverted_to_draft' => __( 'Book reverted to draft', 'wp-book' ),
-			'item_updated' => __( 'Book updated', 'wp-book' )
+			'item_reverted_to_draft'   => __( 'Book reverted to draft', 'wp-book' ),
+			'item_updated'             => __( 'Book updated', 'wp-book' )
 		);
 
 		$args = array(
-			'labels' => $labels,
-			'public' => true,
+			'labels'      => $labels,
+			'public'      => true,
 			'has_archive' => true,
-			'menu_icon' => 'dashicons-book-alt'
+			'menu_icon'   => 'dashicons-book-alt'
 		);
 
 		register_post_type( 'wp-book', $args );
 
 		$labels = array(
-			'name' => __( 'Book Categories', 'wp-book' ),
+			'name'          => __( 'Book Categories', 'wp-book' ),
 			'singular_name' => __( 'Book Category', 'wp-book' )
 		);
 
 		$args = array(
 			'hierarchical' => true,
-			'labels' => $labels,
-			'public' => true,
+			'labels'       => $labels,
+			'public'       => true,
 		);
 
 		register_taxonomy( 'wp-book-category', array( 'wp-book' ), $args );
 
 
 		$labels = array(
-			'name' => __( 'Book Tags', 'wp-book' ),
+			'name'          => __( 'Book Tags', 'wp-book' ),
 			'singular_name' => __( 'Book Tag', 'wp-book' )
 		);
 
 		$args = array(
 			'hierarchical' => false,
-			'labels' => $labels,
-			'public' => true,
+			'labels'       => $labels,
+			'public'       => true,
 		);
 
 		register_taxonomy( 'wp-book-tag', array( 'wp-book' ), $args );
+
+
+		function wp_book_shortcode( $atts = array(), $content = null ) {
+
+			$atts = array_change_key_case( ( array ) $atts, CASE_LOWER );
+
+			$atts = shortcode_atts( array(
+				'id'          => false,
+				'author_name' => false,
+				'year'        => false,
+				'category'    => false,
+				'tag'         => false,
+				'publisher'   => false,
+			), $atts );
+
+			$books = array();
+
+			if ( ! empty( $atts['id'] ) ) {
+				$post = get_post( $atts['id'] );
+
+				if ( ! empty( $post ) && 'publish' === $post->post_status ) {
+					$books[] = $post;
+				}
+			}
+
+			if ( ! empty( $atts['author_name'] ) ) {
+
+			}
+
+			if ( empty( $books ) ) {
+				return $content;
+			}
+
+			$content .= '<h2>' . esc_html__( 'WP Books', 'wp-book' ) . '</h2>';
+
+			foreach ( $books as $book ) {
+				$content .= '<div class="card">';
+				
+				$content .= '<div class="card-body"><h5 class="card-title">' . $book->post_title . '</h5><p class="card-text">' . $book->post_content . '</p></div>';
+
+				$content .= '<ul class="list-group list-group-flush">';
+				$content .= '<li class="list-group-item">' . __( 'Author' ) . ' : ' . '</li>';
+
+				$content .= '</div>';
+			}
+
+			return $content;
+		}
+		add_shortcode( 'wp-book', 'wp_book_shortcode' );
 	}
 
 	public function add_book_metabox() {
@@ -166,14 +215,14 @@ class Wp_Book_Admin {
 	}
 
 	public function add_book_metabox_html( $post ) {
-		$author = get_metadata( 'book', $post->ID, 'author-name', true );
-		$price = get_metadata( 'book', $post->ID, 'price', true );
+		$author    = get_metadata( 'book', $post->ID, 'author-name', true );
+		$price     = get_metadata( 'book', $post->ID, 'price', true );
 		$publisher = get_metadata( 'book', $post->ID, 'publisher', true );
-		$year = get_metadata( 'book', $post->ID, 'year', true );
-		$edition = get_metadata( 'book', $post->ID, 'edition', true );
-		$url = get_metadata( 'book', $post->ID, 'url', true );
+		$year      = get_metadata( 'book', $post->ID, 'year', true );
+		$edition   = get_metadata( 'book', $post->ID, 'edition', true );
+		$url       = get_metadata( 'book', $post->ID, 'url', true );
 
-		$currency = get_option( 'wp-book-currency', '₹' );
+		$currency = get_option( 'wp-book-currency', 'INR' );
 
 		?>
 		<table class="form-table">
@@ -218,12 +267,12 @@ class Wp_Book_Admin {
 	}
 
 	public function save_metadata( $post_ID, $post, $update ) {
-		$author = filter_input( INPUT_POST, 'author-name', FILTER_SANITIZE_STRING );
-		$price = filter_input( INPUT_POST, 'price', FILTER_SANITIZE_STRING );
+		$author    = filter_input( INPUT_POST, 'author-name', FILTER_SANITIZE_STRING );
+		$price     = filter_input( INPUT_POST, 'price', FILTER_SANITIZE_STRING );
 		$publisher = filter_input( INPUT_POST, 'publisher', FILTER_SANITIZE_STRING );
-		$year = filter_input( INPUT_POST, 'year', FILTER_SANITIZE_STRING );
-		$edition = filter_input( INPUT_POST, 'edition', FILTER_SANITIZE_STRING );
-		$url = filter_input( INPUT_POST, 'url', FILTER_SANITIZE_STRING );
+		$year      = filter_input( INPUT_POST, 'year', FILTER_SANITIZE_STRING );
+		$edition   = filter_input( INPUT_POST, 'edition', FILTER_SANITIZE_STRING );
+		$url       = filter_input( INPUT_POST, 'url', FILTER_SANITIZE_STRING );
 
 		update_metadata( 'book', $post_ID, 'author-name', $author );
 		update_metadata( 'book', $post_ID, 'price', $price );
@@ -231,6 +280,115 @@ class Wp_Book_Admin {
 		update_metadata( 'book', $post_ID, 'year', $year );
 		update_metadata( 'book', $post_ID, 'edition', $edition );
 		update_metadata( 'book', $post_ID, 'url', $url );
+	}
+
+	public function settings_init() {
+		register_setting( 'wp-book', 'wp-book-currency' );
+		register_setting( 'wp-book', 'wp-book-books-displayed-per-page' );
+
+		add_settings_section( 'wp-book-settings-section', __( 'WP Book Settings', 'wp-book' ), array( $this, 'settings_section_callback' ), 'wp-book-settings' );
+
+		add_settings_field( 'wp-book-settings-currency', __( 'Currency', 'wp-book' ), array( $this, 'currency_field_callback' ), 'wp-book-settings', 'wp-book-settings-section' );
+		add_settings_field( 'wp-book-settings-books-displayed-page', __( 'Number of Books per Page', 'wp-book' ), array( $this, 'number_of_books_field_callback' ), 'wp-book-settings', 'wp-book-settings-section' );
+	}
+
+	public function settings_section_callback() {
+		// Description to display for section.
+	}
+
+	public function currency_field_callback( $args ) {
+		$option = get_option( 'wp-book-currency', 'INR' );
+
+		?>
+		<select name="wp-book-currency">
+			<option value="USD" <?php selected( 'USD', $option ); ?>><?= esc_html__( 'United States Dollars', 'wp-book' ) ?></option>
+			<option value="EUR" <?php selected( 'EUR', $option ); ?>><?= esc_html__( 'Euro', 'wp-book' ) ?></option>
+			<option value="GBP" <?php selected( 'GBP', $option ); ?>><?= esc_html__( 'United Kingdom Pounds', 'wp-book' ) ?></option>
+			<option value="DZD" <?php selected( 'DZD', $option ); ?>><?= esc_html__( 'Algeria Dinars', 'wp-book' ) ?></option>
+			<option value="ARP" <?php selected( 'ARP', $option ); ?>><?= esc_html__( 'Argentina Pesos', 'wp-book' ) ?></option>
+			<option value="AUD" <?php selected( 'AUD', $option ); ?>><?= esc_html__( 'Australia Dollars', 'wp-book' ) ?></option>
+			<option value="ATS" <?php selected( 'ATS', $option ); ?>><?= esc_html__( 'Austria Schillings', 'wp-book' ) ?></option>
+			<option value="BSD" <?php selected( 'BSD', $option ); ?>><?= esc_html__( 'Bahamas Dollars', 'wp-book' ) ?></option>
+			<option value="BBD" <?php selected( 'BBD', $option ); ?>><?= esc_html__( 'Barbados Dollars', 'wp-book' ) ?></option>
+			<option value="BEF" <?php selected( 'BEF', $option ); ?>><?= esc_html__( 'Belgium Francs', 'wp-book' ) ?></option>
+			<option value="BMD" <?php selected( 'BMD', $option ); ?>><?= esc_html__( 'Bermuda Dollars', 'wp-book' ) ?></option>
+			<option value="BRR" <?php selected( 'BRR', $option ); ?>><?= esc_html__( 'Brazil Real', 'wp-book' ) ?></option>
+			<option value="BGL" <?php selected( 'BGL', $option ); ?>><?= esc_html__( 'Bulgaria Lev', 'wp-book' ) ?></option>
+			<option value="CAD" <?php selected( 'CAD', $option ); ?>><?= esc_html__( 'Canada Dollars', 'wp-book' ) ?></option>
+			<option value="CLP" <?php selected( 'CLP', $option ); ?>><?= esc_html__( 'Chile Pesos', 'wp-book' ) ?></option>
+			<option value="CNY" <?php selected( 'CNY', $option ); ?>><?= esc_html__( 'China Yuan Renmimbi', 'wp-book' ) ?></option>
+			<option value="CYP" <?php selected( 'CYP', $option ); ?>><?= esc_html__( 'Cyprus Pounds', 'wp-book' ) ?></option>
+			<option value="CSK" <?php selected( 'CSK', $option ); ?>><?= esc_html__( 'Czech Republic Koruna', 'wp-book' ) ?></option>
+			<option value="DKK" <?php selected( 'DKK', $option ); ?>><?= esc_html__( 'Denmark Kroner', 'wp-book' ) ?></option>
+			<option value="NLG" <?php selected( 'NLG', $option ); ?>><?= esc_html__( 'Dutch Guilders', 'wp-book' ) ?></option>
+			<option value="XCD" <?php selected( 'XCD', $option ); ?>><?= esc_html__( 'Eastern Caribbean Dollars', 'wp-book' ) ?></option>
+			<option value="EGP" <?php selected( 'EGP', $option ); ?>><?= esc_html__( 'Egypt Pounds', 'wp-book' ) ?></option>
+			<option value="FJD" <?php selected( 'FJD', $option ); ?>><?= esc_html__( 'Fiji Dollars', 'wp-book' ) ?></option>
+			<option value="FIM" <?php selected( 'FIM', $option ); ?>><?= esc_html__( 'Finland Markka', 'wp-book' ) ?></option>
+			<option value="FRF" <?php selected( 'FRF', $option ); ?>><?= esc_html__( 'France Francs', 'wp-book' ) ?></option>
+			<option value="DEM" <?php selected( 'DEM', $option ); ?>><?= esc_html__( 'Germany Deutsche Marks', 'wp-book' ) ?></option>
+			<option value="XAU" <?php selected( 'XAU', $option ); ?>><?= esc_html__( 'Gold Ounces', 'wp-book' ) ?></option>
+			<option value="GRD" <?php selected( 'GRD', $option ); ?>><?= esc_html__( 'Greece Drachmas', 'wp-book' ) ?></option>
+			<option value="HKD" <?php selected( 'HKD', $option ); ?>><?= esc_html__( 'Hong Kong Dollars', 'wp-book' ) ?></option>
+			<option value="HUF" <?php selected( 'HUF', $option ); ?>><?= esc_html__( 'Hungary Forint', 'wp-book' ) ?></option>
+			<option value="ISK" <?php selected( 'ISK', $option ); ?>><?= esc_html__( 'Iceland Krona', 'wp-book' ) ?></option>
+			<option value="INR" <?php selected( 'INR', $option ); ?>><?= esc_html__( 'India Rupees', 'wp-book' ) ?></option>
+			<option value="IDR" <?php selected( 'IDR', $option ); ?>><?= esc_html__( 'Indonesia Rupiah', 'wp-book' ) ?></option>
+			<option value="IEP" <?php selected( 'IEP', $option ); ?>><?= esc_html__( 'Ireland Punt', 'wp-book' ) ?></option>
+			<option value="ILS" <?php selected( 'ILS', $option ); ?>><?= esc_html__( 'Israel New Shekels', 'wp-book' ) ?></option>
+			<option value="ITL" <?php selected( 'ITL', $option ); ?>><?= esc_html__( 'Italy Lira', 'wp-book' ) ?></option>
+			<option value="JMD" <?php selected( 'JMD', $option ); ?>><?= esc_html__( 'Jamaica Dollars', 'wp-book' ) ?></option>
+			<option value="JPY" <?php selected( 'JPY', $option ); ?>><?= esc_html__( 'Japan Yen', 'wp-book' ) ?></option>
+		</select>
+		<?php
+	}
+
+	public function number_of_books_field_callback() {
+		$option = get_option( 'wp-book-books-displayed-per-page', 5 );
+		
+		?>
+		<input type="number" name="wp-book-books-displayed-per-page" value="<?= esc_attr( $option ) ?>">
+		<?php
+	}
+
+	public function admin_menu() {
+		add_submenu_page( 
+			'edit.php?post_type=wp-book', 
+			__( 'WP Book Settings', 'wp-book' ),
+			__( 'Settings', 'wp-book' ),
+			'manage_options',
+			'wp-book-settings',
+			array( $this, 'settings_page_callback' )
+		);
+	}
+
+	public function settings_page_callback() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$settings_updated = filter_input( INPUT_GET, 'settings-updated', FILTER_SANITIZE_STRING );
+		if ( ! empty( $settings_updated ) ) {
+			add_settings_error( 'wp-book-messages', 'wp-book-message', __( 'Settings Saved', 'wp-book' ), 'updated' );
+		}
+
+		settings_errors( 'wp-book-messages' );
+
+		?>
+		<div class="wrap">
+			<form action="options.php" method="post">
+			<?php
+
+			settings_fields( 'wp-book' );
+
+			do_settings_sections( 'wp-book-settings' );
+
+			submit_button( 'Save Settings' );
+
+			?>
+			</form>
+		</div>
+		<?php
 	}
 
 }
