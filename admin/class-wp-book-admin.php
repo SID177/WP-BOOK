@@ -99,6 +99,9 @@ class Wp_Book_Admin {
 
 	}
 
+	/**
+	 * This function registers wp-book CPT.
+	 */
 	private function register_post_type() {
 		$labels = array(
 			'name'                     => _x( 'Books', 'Book general name', 'wp-book' ),
@@ -134,6 +137,9 @@ class Wp_Book_Admin {
 		register_post_type( 'wp-book', $args );
 	}
 
+	/**
+	 * This function registers wp-book-category and wp-book-tag custom Taxonomies.
+	 */
 	private function register_taxonomies() {
 		$labels = array(
 			'name'          => __( 'Book Categories', 'wp-book' ),
@@ -163,7 +169,20 @@ class Wp_Book_Admin {
 		register_taxonomy( 'wp-book-tag', array( 'wp-book' ), $args );
 	}
 
+	/**
+	 * This functions adds custom shortcode.
+	 */
 	private function add_shortcode() {
+		
+		/**
+		 * This function is a callback for custom shortcode.
+		 * It renders HTML instead of shortcode tag on front-end.
+		 * 
+		 * @param Array  $atts    Attributes of the shortcode.
+		 * @param String $content Content between starting and closing shortcode tag.
+		 * 
+		 * @return String HTML showing content of the shortcode on front-end.
+		 */
 		function wp_book_shortcode( $atts = array(), $content = null ) {
 			$atts = array_change_key_case( ( array ) $atts, CASE_LOWER );
 
@@ -186,7 +205,7 @@ class Wp_Book_Admin {
 
 			if ( ! empty( $atts['author_name'] ) ) {
 				$result = $wpdb->get_col( 
-					$wpdb->prepare( 'SELECT DISTINCT book_id FROM ' . $wpdb->prefix . 'bookmeta WHERE meta_key="author-name" AND meta_value="%s"', array( $atts['author_name'] ) )
+					$wpdb->prepare( 'SELECT DISTINCT book_id FROM ' . $wpdb->bookmeta . ' WHERE meta_key="author-name" AND meta_value="%s"', array( $atts['author_name'] ) )
 				);
 
 				$book_ids = array_merge( $book_ids, $result );
@@ -194,7 +213,7 @@ class Wp_Book_Admin {
 
 			if ( ! empty( $atts['year'] ) ) {
 				$result = $wpdb->get_col( 
-					$wpdb->prepare( 'SELECT DISTINCT book_id FROM ' . $wpdb->prefix . 'bookmeta WHERE meta_key="year" AND meta_value="%s"', array( $atts['year'] ) )
+					$wpdb->prepare( 'SELECT DISTINCT book_id FROM ' . $wpdb->bookmeta . ' WHERE meta_key="year" AND meta_value="%s"', array( $atts['year'] ) )
 				);
 
 				$book_ids = array_merge( $book_ids, $result );
@@ -202,7 +221,7 @@ class Wp_Book_Admin {
 
 			if ( ! empty( $atts['publisher'] ) ) {
 				$result = $wpdb->get_col( 
-					$wpdb->prepare( 'SELECT DISTINCT book_id FROM ' . $wpdb->prefix . 'bookmeta WHERE meta_key="publisher" AND meta_value="%s"', array( $atts['publisher'] ) )
+					$wpdb->prepare( 'SELECT DISTINCT book_id FROM ' . $wpdb->bookmeta . ' WHERE meta_key="publisher" AND meta_value="%s"', array( $atts['publisher'] ) )
 				);
 
 				$book_ids = array_merge( $book_ids, $result );
@@ -309,19 +328,34 @@ class Wp_Book_Admin {
 
 			return $content;
 		}
+
 		add_shortcode( 'wp-book', 'wp_book_shortcode' );
 	}
 
+	/**
+	 * This function is hooked to 'init' action hook.
+	 * It calls functions which registers cpt, ct and adds custom shortcode.
+	 */
 	public function init() {
 		$this->register_post_type();
 		$this->register_taxonomies();
 		$this->add_shortcode();
 	}
 
+	/**
+	 * This function is hooked to 'add_meta_boxes' action hook.
+	 * It adds a metabox for additional book information.
+	 */
 	public function add_book_metabox() {
 		add_meta_box( 'wp-book-metabox', __( 'Book Meta Information', 'wp-book' ), array( $this, 'add_book_metabox_html' ), 'wp-book' );
 	}
 
+	/**
+	 * This function is a callback for wp-book-metabox.
+	 * It renders the HTML code for the metabox.
+	 * 
+	 * @param Object $post Current post object.
+	 */
 	public function add_book_metabox_html( $post ) {
 		$author    = get_metadata( 'book', $post->ID, 'author-name', true );
 		$price     = get_metadata( 'book', $post->ID, 'price', true );
@@ -368,12 +402,24 @@ class Wp_Book_Admin {
 		<?php
 	}
 
+	/**
+	 * This function is hooked to 'plugins_loaded' action hook.
+	 * It registers custom bookmeta table to global $wpdb;
+	 */
 	public function register_book_metatable() {
 		global $wpdb;
 
 		$wpdb->bookmeta = $wpdb->prefix . 'bookmeta';
 	}
 
+	/**
+	 * This function is hooked to 'save_post_wp-book' action hook.
+	 * It saves extra information of wp-book post.
+	 * 
+	 * @param INT     $post_ID Current post_ID which is being saved.
+	 * @param Object  $post    Post object which is being saved.
+	 * @param Boolean $update  Whether the post is being updated or not.
+	 */
 	public function save_metadata( $post_ID, $post, $update ) {
 		$author    = filter_input( INPUT_POST, 'author-name', FILTER_SANITIZE_STRING );
 		$price     = filter_input( INPUT_POST, 'price', FILTER_SANITIZE_STRING );
@@ -390,6 +436,10 @@ class Wp_Book_Admin {
 		update_metadata( 'book', $post_ID, 'url', $url );
 	}
 
+	/**
+	 * This function is hooked to 'admin_init' action hook.
+	 * It registers settings, Its section and fields.
+	 */
 	public function settings_init() {
 		register_setting( 'wp-book', 'wp-book-currency' );
 		register_setting( 'wp-book', 'wp-book-books-displayed-per-page' );
@@ -400,10 +450,19 @@ class Wp_Book_Admin {
 		add_settings_field( 'wp-book-settings-books-displayed-page', __( 'Number of Books per Page', 'wp-book' ), array( $this, 'number_of_books_field_callback' ), 'wp-book-settings', 'wp-book-settings-section' );
 	}
 
+	/**
+	 * This function is a callback for settings section added in settings_init() function.
+	 */
 	public function settings_section_callback() {
 		// Description to display for section.
 	}
 
+	/**
+	 * This function is a callback for currency field added in settings_init() function.
+	 * It renders HTML for currency setting.
+	 * 
+	 * @param Array $args Arguments passed while adding settings field.
+	 */
 	public function currency_field_callback( $args ) {
 		$option = get_option( 'wp-book-currency', 'INR' );
 
@@ -451,6 +510,10 @@ class Wp_Book_Admin {
 		<?php
 	}
 
+	/**
+	 * This function is a callback for settings field added settings_init() function.
+	 * It renders HTML for number_of_books setting field.
+	 */
 	public function number_of_books_field_callback() {
 		$option = get_option( 'wp-book-books-displayed-per-page', 5 );
 		
@@ -459,6 +522,10 @@ class Wp_Book_Admin {
 		<?php
 	}
 
+	/**
+	 * This function is hooked to 'admin_menu' action hook.
+	 * It adds a submenu for settings page under WP Books main menu.
+	 */
 	public function admin_menu() {
 		add_submenu_page( 
 			'edit.php?post_type=wp-book', 
@@ -470,6 +537,10 @@ class Wp_Book_Admin {
 		);
 	}
 
+	/**
+	 * This function is a callback for settings page.
+	 * It renders the HTML for settings page.
+	 */
 	public function settings_page_callback() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
@@ -499,16 +570,24 @@ class Wp_Book_Admin {
 		<?php
 	}
 
+	/**
+	 * This function is hooked to 'wp_dashboard_setup'action hook.
+	 * It adds a dashboard widget.
+	 */
 	public function wp_dashboard_setup() {
 		wp_add_dashboard_widget( 'wp-book-dashboard-widget', esc_html__( 'Top 5 WP Book Categories', 'wp-book' ), array( $this, 'dashboard_widget_html' ) );
 	}
 
+	/**
+	 * This function is a callback for custom dashboard widget.
+	 * It shows top 5 wp-book-category based on count.
+	 */
 	public function dashboard_widget_html() {
 		$categories = get_terms( array(
 			'hide_empty' => false,
-			'taxonomy' => 'wp-book-category',
-			'orderby' => 'count',
-			'order' => 'DESC'
+			'taxonomy'   => 'wp-book-category',
+			'orderby'    => 'count',
+			'order'      => 'DESC'
 		) );
 		
 		if ( empty( $categories ) ) {

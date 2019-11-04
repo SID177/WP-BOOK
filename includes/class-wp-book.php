@@ -99,7 +99,7 @@ class Wp_Book {
 	private function load_dependencies() {
 
 		/**
-		 * The class responsible for registering custom widget
+		 * The class responsible for registering custom sidebar widget.
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wp-book-widget.php';
 
@@ -186,6 +186,7 @@ class Wp_Book {
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 
 		$this->loader->add_action( 'widgets_init', $plugin_public, 'widgets_init' );
+		$this->loader->add_action( 'pre_get_posts', $plugin_public, 'pre_get_posts' );
 
 	}
 

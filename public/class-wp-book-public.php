@@ -103,8 +103,29 @@ class Wp_Book_Public {
 
 	}
 
+	/**
+	 * This function is hooked to 'widgets_init' action hook.
+	 * It registers custom widget class with WordPress.
+	 */
 	public function widgets_init() {
 		register_widget( 'Wp_Book_Widget' );
+	}
+
+	/**
+	 * This function is hooked to 'pre_get_posts' action hook.
+	 * It modifies the 'posts_per_page' attribute of main query of wp-book archive page.
+	 * 
+	 * @param Object $query Query object.
+	 */
+	public function pre_get_posts( $query ) {
+		$option = get_option( 'wp-book-books-displayed-per-page' );
+		if ( empty( $option ) ) {
+			return;
+		}
+
+		if ( ! is_admin() && $query->is_main_query() && is_post_type_archive( 'wp-book' ) ) {
+			$query->set( 'posts_per_page', $option );
+		}
 	}
 
 }

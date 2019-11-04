@@ -22,7 +22,8 @@
 class Wp_Book_Activator {
 
 	/**
-	 * Short Description. (use period)
+	 * This function creates new custom table for book meta information.
+	 * It also adds default values for setting options.
 	 *
 	 * Long Description.
 	 *
@@ -31,7 +32,7 @@ class Wp_Book_Activator {
 	public static function activate() {
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'bookmeta';
+		$table_name      = $wpdb->prefix . 'bookmeta';
 		$charset_collate = $wpdb->get_charset_collate();
 
 		$sql = "CREATE TABLE $table_name (

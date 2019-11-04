@@ -13,13 +13,11 @@
  */
 
 /**
- * The core plugin class.
+ * The core class for custom widget.
  *
- * This is used to define internationalization, admin-specific hooks, and
- * public-facing site hooks.
+ * This is used to define behavior of the custom widget and
+ * renders HTML for admin and front-end side.
  *
- * Also maintains the unique identifier of this plugin as well as the current
- * version of the plugin.
  *
  * @since      1.0.0
  * @package    Wp_Book
@@ -36,10 +34,7 @@ class Wp_Book_Widget extends WP_Widget {
     );
 
 	/**
-	 *
-	 * Set the plugin name and the plugin version that can be used throughout the plugin.
-	 * Load the dependencies, define the locale, and set the hooks for the admin area and
-	 * the public-facing side of the site.
+	 * Register widget with WordPress.
 	 *
 	 * @since    1.0.0
 	 */
@@ -47,6 +42,14 @@ class Wp_Book_Widget extends WP_Widget {
 		parent::__construct( 'wp-book-widget', esc_html__( 'WP Book Widget', 'wp-book' ), array( 'description' => esc_html__( 'WP Book Widget' ) ) );
 	}
 
+	/**
+	 * Front-end display of widget.
+	 *
+	 * @see WP_Widget::widget()
+	 *
+	 * @param Array $args     Widget arguments.
+	 * @param Array $instance Saved values from database.
+	 */
 	public function widget( $args, $instance ) {
 
 		if ( empty( $instance['category'] ) ) {
@@ -91,6 +94,13 @@ class Wp_Book_Widget extends WP_Widget {
 
 	}
 
+	/**
+	 * Back-end widget form.
+	 *
+	 * @see WP_Widget::form()
+	 *
+	 * @param Array $instance Previously saved values from database.
+	 */
 	public function form( $instance ) {
 		$title    = ( ! empty( $instance['title'] ) ) ? $instance['title'] : esc_html__( '', 'wp-book' );
 		$category = ( ! empty( $instance['category'] ) ) ? $instance['category'] : '';
@@ -117,6 +127,16 @@ class Wp_Book_Widget extends WP_Widget {
 		<?php
 	}
 
+	/**
+	 * Sanitize widget form values as they are saved.
+	 *
+	 * @see WP_Widget::update()
+	 *
+	 * @param Array $new_instance Values just sent to be saved.
+	 * @param Array $old_instance Previously saved values from database.
+	 *
+	 * @return Array Updated safe values to be saved.
+	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance = array();
 
