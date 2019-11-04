@@ -103,4 +103,8 @@ class Wp_Book_Public {
 
 	}
 
+	public function widgets_init() {
+		register_widget( 'Wp_Book_Widget' );
+	}
+
 }

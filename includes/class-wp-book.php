@@ -99,6 +99,11 @@ class Wp_Book {
 	private function load_dependencies() {
 
 		/**
+		 * The class responsible for registering custom widget
+		 */
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wp-book-widget.php';
+
+		/**
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
 		 */
@@ -178,6 +183,8 @@ class Wp_Book {
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
+
+		$this->loader->add_action( 'widgets_init', $plugin_public, 'widgets_init' );
 
 	}
 

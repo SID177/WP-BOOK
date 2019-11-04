@@ -162,7 +162,6 @@ class Wp_Book_Admin {
 
 
 		function wp_book_shortcode( $atts = array(), $content = null ) {
-
 			$atts = array_change_key_case( ( array ) $atts, CASE_LOWER );
 
 			$atts = shortcode_atts( array(
@@ -174,18 +173,82 @@ class Wp_Book_Admin {
 				'publisher'   => false,
 			), $atts );
 
-			$books = array();
+			$book_ids = array();
 
 			if ( ! empty( $atts['id'] ) ) {
-				$post = get_post( $atts['id'] );
-
-				if ( ! empty( $post ) && 'publish' === $post->post_status ) {
-					$books[] = $post;
-				}
+				$book_ids[] = $atts['id'];
 			}
 
-			if ( ! empty( $atts['author_name'] ) ) {
+			global $wpdb;
 
+			if ( ! empty( $atts['author_name'] ) ) {
+				$result = $wpdb->get_col( 
+					$wpdb->prepare( 'SELECT DISTINCT book_id FROM ' . $wpdb->prefix . 'bookmeta WHERE meta_key="author-name" AND meta_value="%s"', array( $atts['author_name'] ) )
+				);
+
+				$book_ids = array_merge( $book_ids, $result );
+			}
+
+			if ( ! empty( $atts['year'] ) ) {
+				$result = $wpdb->get_col( 
+					$wpdb->prepare( 'SELECT DISTINCT book_id FROM ' . $wpdb->prefix . 'bookmeta WHERE meta_key="year" AND meta_value="%s"', array( $atts['year'] ) )
+				);
+
+				$book_ids = array_merge( $book_ids, $result );
+			}
+
+			if ( ! empty( $atts['publisher'] ) ) {
+				$result = $wpdb->get_col( 
+					$wpdb->prepare( 'SELECT DISTINCT book_id FROM ' . $wpdb->prefix . 'bookmeta WHERE meta_key="publisher" AND meta_value="%s"', array( $atts['publisher'] ) )
+				);
+
+				$book_ids = array_merge( $book_ids, $result );
+			}
+
+			$tax_query = array();
+			
+			if ( ! empty( $atts['category'] ) ) {
+				$tax_query[] = array(
+					'taxonomy' => 'wp-book-category',
+					'field'    => 'name',
+					'terms'    => $atts['category']
+				);
+			}
+
+			if ( ! empty( $atts['tag'] ) ) {
+				$tax_query[] = array(
+					'taxonomy' => 'wp-book-tag',
+					'field'    => 'name',
+					'terms'    => $atts['tag']
+				);
+			}
+
+			if ( count( $tax_query ) > 1 ) {
+				$tax_query['relation'] = 'OR';
+			}
+
+			$books = array();
+			if ( ! empty( $book_ids ) ) {
+				$books = get_posts( array( 
+					'post__in'    => $book_ids,
+					'post_type'   => 'wp-book',
+					'post_status' => 'publish',
+					'order'       => 'ASC',
+					'orderby'     => 'ID',
+				) );
+			}
+
+			if ( ! empty( $tax_query ) ) {
+				$tax_books = get_posts( array( 
+					'post__not_in' => $book_ids,
+					'post_type'    => 'wp-book',
+					'post_status'  => 'publish',
+					'order'        => 'ASC',
+					'orderby'      => 'ID',
+					'tax_query'    => $tax_query,
+				) );
+
+				$books = array_merge( $books, $tax_books );
 			}
 
 			if ( empty( $books ) ) {
@@ -195,14 +258,50 @@ class Wp_Book_Admin {
 			$content .= '<h2>' . esc_html__( 'WP Books', 'wp-book' ) . '</h2>';
 
 			foreach ( $books as $book ) {
+				$author    = get_metadata( 'book', $book->ID, 'author-name', true );
+				$price     = get_metadata( 'book', $book->ID, 'price', true );
+				$publisher = get_metadata( 'book', $book->ID, 'publisher', true );
+				$year      = get_metadata( 'book', $book->ID, 'year', true );
+				$edition   = get_metadata( 'book', $book->ID, 'edition', true );
+				$url       = get_metadata( 'book', $book->ID, 'url', true );
+
+				$currency = get_option( 'wp-book-currency', 'INR' );
+
 				$content .= '<div class="card">';
 				
-				$content .= '<div class="card-body"><h5 class="card-title">' . $book->post_title . '</h5><p class="card-text">' . $book->post_content . '</p></div>';
+				$content .= '<div class="card-header">' . esc_html( $book->post_title ) . '</div><div class="card-body"><p class="card-text">' . $book->post_content . '</p></div>';
 
-				$content .= '<ul class="list-group list-group-flush">';
-				$content .= '<li class="list-group-item">' . __( 'Author' ) . ' : ' . '</li>';
+				$metainfo = '';
 
-				$content .= '</div>';
+				if ( ! empty( $author ) ) {
+					$metainfo .= '<li class="list-group-item">' . __( 'Author' ) . ' : ' . esc_html( $author ) . '</li>';
+				}
+
+				if ( ! empty( $price ) ) {
+					$metainfo .= '<li class="list-group-item">' . __( 'Price' ) . ' : ' . esc_html( $price ) . ' ' . esc_html( $currency ) . '</li>';
+				}
+
+				if ( ! empty( $publisher ) ) {
+					$metainfo .= '<li class="list-group-item">' . __( 'Publisher' ) . ' : ' . esc_html( $publisher ) . '</li>';
+				}
+
+				if ( ! empty( $year ) ) {
+					$metainfo .= '<li class="list-group-item">' . __( 'Year' ) . ' : ' . esc_html( $year ) . '</li>';
+				}
+
+				if ( ! empty( $edition ) ) {
+					$metainfo .= '<li class="list-group-item">' . __( 'Edition' ) . ' : ' . esc_html( $edition ) . '</li>';
+				}
+
+				if ( ! empty( $url ) ) {
+					$metainfo .= '<li class="list-group-item">' . __( 'URL' ) . ' : ' . esc_html( $url ) . '</li>';
+				}
+
+				if ( ! empty( $metainfo ) ) {
+					$content .= '<ul class="list-group list-group-flush">' . $metainfo . '</ul>';
+				}
+
+				$content .= '</div><br>';
 			}
 
 			return $content;
