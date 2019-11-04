@@ -428,12 +428,41 @@ class Wp_Book_Admin {
 		$edition   = filter_input( INPUT_POST, 'edition', FILTER_SANITIZE_STRING );
 		$url       = filter_input( INPUT_POST, 'url', FILTER_SANITIZE_STRING );
 
-		update_metadata( 'book', $post_ID, 'author-name', $author );
-		update_metadata( 'book', $post_ID, 'price', $price );
-		update_metadata( 'book', $post_ID, 'publisher', $publisher );
-		update_metadata( 'book', $post_ID, 'year', $year );
-		update_metadata( 'book', $post_ID, 'edition', $edition );
-		update_metadata( 'book', $post_ID, 'url', $url );
+		if ( ! empty( $author ) ) {
+			update_metadata( 'book', $post_ID, 'author-name', $author );
+		} else {
+			delete_metadata( 'book', $post_ID, 'author-name' );
+		}
+
+		if ( ! empty( $price ) ) {
+			update_metadata( 'book', $post_ID, 'price', $price );
+		} else {
+			delete_metadata( 'book', $post_ID, 'price' );
+		}
+
+		if ( ! empty( $publisher ) ) {
+			update_metadata( 'book', $post_ID, 'publisher', $publisher );
+		} else {
+			delete_metadata( 'book', $post_ID, 'publisher' );
+		}
+
+		if ( ! empty( $year ) ) {
+			update_metadata( 'book', $post_ID, 'year', $year );
+		} else {
+			delete_metadata( 'book', $post_ID, 'year' );
+		}
+
+		if ( ! empty( $edition ) ) {
+			update_metadata( 'book', $post_ID, 'edition', $edition );
+		} else {
+			delete_metadata( 'book', $post_ID, 'edition' );
+		}
+
+		if ( ! empty( $url ) ) {
+			update_metadata( 'book', $post_ID, 'url', $url );
+		} else {
+			delete_metadata( 'book', $post_ID, 'url' );
+		}
 	}
 
 	/**
