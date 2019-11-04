@@ -99,7 +99,7 @@ class Wp_Book_Admin {
 
 	}
 
-	public function init() {
+	private function register_post_type() {
 		$labels = array(
 			'name'                     => _x( 'Books', 'Book general name', 'wp-book' ),
 			'singular_name'            => _x( 'Book', 'Book singular name', 'wp-book' ),
@@ -132,7 +132,9 @@ class Wp_Book_Admin {
 		);
 
 		register_post_type( 'wp-book', $args );
+	}
 
+	private function register_taxonomies() {
 		$labels = array(
 			'name'          => __( 'Book Categories', 'wp-book' ),
 			'singular_name' => __( 'Book Category', 'wp-book' )
@@ -159,8 +161,9 @@ class Wp_Book_Admin {
 		);
 
 		register_taxonomy( 'wp-book-tag', array( 'wp-book' ), $args );
+	}
 
-
+	private function add_shortcode() {
 		function wp_book_shortcode( $atts = array(), $content = null ) {
 			$atts = array_change_key_case( ( array ) $atts, CASE_LOWER );
 
@@ -307,6 +310,12 @@ class Wp_Book_Admin {
 			return $content;
 		}
 		add_shortcode( 'wp-book', 'wp_book_shortcode' );
+	}
+
+	public function init() {
+		$this->register_post_type();
+		$this->register_taxonomimes();
+		$this->add_shortcode();
 	}
 
 	public function add_book_metabox() {
