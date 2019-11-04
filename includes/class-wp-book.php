@@ -167,6 +167,7 @@ class Wp_Book {
 		$this->loader->add_action( 'plugins_loaded', $plugin_admin, 'register_book_metatable' );
 		$this->loader->add_action( 'admin_init', $plugin_admin, 'settings_init' );
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'admin_menu' );
+		$this->loader->add_action( 'wp_dashboard_setup', $plugin_admin, 'wp_dashboard_setup' );
 
 	}
 

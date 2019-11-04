@@ -314,7 +314,7 @@ class Wp_Book_Admin {
 
 	public function init() {
 		$this->register_post_type();
-		$this->register_taxonomimes();
+		$this->register_taxonomies();
 		$this->add_shortcode();
 	}
 
@@ -497,6 +497,31 @@ class Wp_Book_Admin {
 			</form>
 		</div>
 		<?php
+	}
+
+	public function wp_dashboard_setup() {
+		wp_add_dashboard_widget( 'wp-book-dashboard-widget', esc_html__( 'Top 5 WP Book Categories', 'wp-book' ), array( $this, 'dashboard_widget_html' ) );
+	}
+
+	public function dashboard_widget_html() {
+		$categories = get_terms( array(
+			'hide_empty' => false,
+			'taxonomy' => 'wp-book-category',
+			'orderby' => 'count',
+			'order' => 'DESC'
+		) );
+		
+		if ( empty( $categories ) ) {
+			echo '<p>' . esc_html__( 'No Categories found.', 'wp-book' ) . '</p>';
+
+			return;
+		}
+
+		echo '<ul>';
+		foreach ( $categories as $category ) {
+			echo '<li>' . esc_html( $category->name ) . ' (' . esc_html( $category->count ) . ')</li>';
+		}
+		echo '</ul>';
 	}
 
 }
