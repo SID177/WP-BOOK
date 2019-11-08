@@ -604,7 +604,7 @@ class Wp_Book_Admin {
 	 * It adds a dashboard widget.
 	 */
 	public function wp_dashboard_setup() {
-		wp_add_dashboard_widget( 'wp-book-dashboard-widget', esc_html__( 'Top 5 WP Book Categories', 'wp-book' ), array( $this, 'dashboard_widget_html' ) );
+		wp_add_dashboard_widget( 'wp-book-dashboard-widget', esc_html__( 'Top 5 WP Book Categories (Based on Count)', 'wp-book' ), array( $this, 'dashboard_widget_html' ) );
 	}
 
 	/**
