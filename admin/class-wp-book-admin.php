@@ -428,10 +428,12 @@ class Wp_Book_Admin {
 	 * @param Boolean $update  Whether the post is being updated or not.
 	 */
 	public function save_metadata( $post_ID, $post, $update ) {
-		$nonce = filter_input( INPUT_POST, 'wp-book-save-meta', FILTER_SANITIZE_STRING );
-		if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'wp-book-save-meta' ) ) {
-			echo esc_html__( 'Your nonce didn\'t verify.', 'wp-book' );
-			exit;
+		if ( $update ) {
+			$nonce = filter_input( INPUT_POST, 'wp-book-save-meta', FILTER_SANITIZE_STRING );
+			if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'wp-book-save-meta' ) ) {
+				echo esc_html__( 'Your nonce didn\'t verify.', 'wp-book' );
+				exit;
+			}
 		}
 
 		$author    = filter_input( INPUT_POST, 'author-name', FILTER_SANITIZE_STRING );
