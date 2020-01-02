@@ -371,34 +371,36 @@ class Wp_Book_Admin {
 
 		$currency = get_option( 'wp-book-currency', 'INR' );
 
+		wp_nonce_field( 'wp-book-save-meta', 'wp-book-save-meta' );
+
 		?>
 		<table class="form-table">
 			<tbody>
 				<tr>
 					<td>
-						<label for="author-name">Author</label>
+						<label for="author-name"><?php esc_html_e( 'Author', 'wp-book' ); ?></label>
 						<input form="post" type="text" id="author-name" name="author-name" value="<?php echo esc_attr( $author ); ?>">
 					</td>
 					<td>
-						<label for="price">Price (<?php echo esc_html( $currency ); ?>)</label>
+						<label for="price"><?php esc_html_e( 'Price', 'wp-book' ); ?> (<?php echo esc_html( $currency ); ?>)</label>
 						<input form="post" type="number" id="price" name="price" value="<?php echo esc_attr( $price ); ?>">
 					</td>
 					<td>
-						<label for="publisher">Publisher</label>
+						<label for="publisher"><?php esc_html_e( 'Publisher', 'wp-book' ); ?></label>
 						<input form="post" type="text" id="publisher" name="publisher" value="<?php echo esc_attr( $publisher ); ?>">
 					</td>
 				</tr>
 				<tr>
 					<td>
-						<label for="year">Year</label>
+						<label for="year"><?php esc_html_e( 'Year', 'wp-book' ); ?></label>
 						<input form="post" type="text" id="year" name="year" value="<?php echo esc_attr( $year ); ?>">
 					</td>
 					<td>
-						<label for="edition">Edition</label>
+						<label for="edition"><?php esc_html_e( 'Edition', 'wp-book' ); ?></label>
 						<input form="post" type="text" id="edition" name="edition" value="<?php echo esc_attr( $edition ); ?>">
 					</td>
 					<td>
-						<label for="url">URL</label>
+						<label for="url"><?php esc_html_e( 'URL', 'wp-book' ); ?></label>
 						<input form="post" type="text" id="url" name="url" value="<?php echo esc_attr( $url ); ?>">
 					</td>
 				</tr>
@@ -426,6 +428,12 @@ class Wp_Book_Admin {
 	 * @param Boolean $update  Whether the post is being updated or not.
 	 */
 	public function save_metadata( $post_ID, $post, $update ) {
+		$nonce = filter_input( INPUT_POST, 'wp-book-save-meta', FILTER_SANITIZE_STRING );
+		if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'wp-book-save-meta' ) ) {
+			echo esc_html__( 'Your nonce didn\'t verify.', 'wp-book' );
+			exit;
+		}
+
 		$author    = filter_input( INPUT_POST, 'author-name', FILTER_SANITIZE_STRING );
 		$price     = filter_input( INPUT_POST, 'price', FILTER_SANITIZE_STRING );
 		$publisher = filter_input( INPUT_POST, 'publisher', FILTER_SANITIZE_STRING );
