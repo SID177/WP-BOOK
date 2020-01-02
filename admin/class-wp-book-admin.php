@@ -256,11 +256,11 @@ class Wp_Book_Admin {
 			if ( ! empty( $book_ids ) ) {
 				$books = get_posts(
 					array(
-						'post__in'    => $book_ids,
-						'post_type'   => 'wp-book',
-						'post_status' => 'publish',
-						'order'       => 'ASC',
-						'orderby'     => 'ID',
+						'post__in'       => $book_ids,
+						'post_type'      => 'wp-book',
+						'post_status'    => 'publish',
+						'order'          => 'ASC',
+						'orderby'        => 'ID',
 						'posts_per_page' => get_option( 'wp-book-books-displayed-per-page', get_option( 'posts_per_page' ) ),
 					)
 				);
@@ -270,7 +270,7 @@ class Wp_Book_Admin {
 			 * For some reason, post__in and tax_query are not working together.
 			 * So I have to make 2 get_posts() calls.
 			 * Then merging both call's data into 1.
-			 * 
+			 *
 			 * I tried using transients but it is not possible to manage them for multiple
 			 * shortcodes and it has to be updated on deleting and adding new posts.
 			 */
@@ -278,11 +278,11 @@ class Wp_Book_Admin {
 			if ( ! empty( $tax_query ) ) {
 				$tax_books = get_posts(
 					array(
-						'post__not_in' => $book_ids,
-						'post_type'    => 'wp-book',
-						'post_status'  => 'publish',
-						'order'        => 'ASC',
-						'orderby'      => 'ID',
+						'post__not_in'   => $book_ids,
+						'post_type'      => 'wp-book',
+						'post_status'    => 'publish',
+						'order'          => 'ASC',
+						'orderby'        => 'ID',
 						'tax_query'    => $tax_query, // phpcs:ignore
 						'posts_per_page' => get_option( 'wp-book-books-displayed-per-page', get_option( 'posts_per_page' ) ),
 					)
