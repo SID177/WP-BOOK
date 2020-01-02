@@ -604,7 +604,7 @@ class Wp_Book_Admin {
 
 			do_settings_sections( 'wp-book-settings' );
 
-			submit_button( 'Save Settings' );
+			submit_button( __( 'Save Settings', 'wp-book' ) );
 
 			?>
 			</form>
