@@ -196,6 +196,8 @@ class Wp_Book_Admin {
 				$atts
 			);
 
+			// We first retrieve book_ids of books which needs to be shown, then
+			// Store it in $book_ids array.
 			$book_ids = array();
 
 			if ( ! empty( $atts['id'] ) ) {
@@ -259,9 +261,19 @@ class Wp_Book_Admin {
 						'post_status' => 'publish',
 						'order'       => 'ASC',
 						'orderby'     => 'ID',
+						'posts_per_page' => get_option( 'wp-book-books-displayed-per-page', get_option( 'posts_per_page' ) ),
 					)
 				);
 			}
+
+			/**
+			 * For some reason, post__in and tax_query are not working together.
+			 * So I have to make 2 get_posts() calls.
+			 * Then merging both call's data into 1.
+			 * 
+			 * I tried using transients but it is not possible to manage them for multiple
+			 * shortcodes and it has to be updated on deleting and adding new posts.
+			 */
 
 			if ( ! empty( $tax_query ) ) {
 				$tax_books = get_posts(
@@ -272,6 +284,7 @@ class Wp_Book_Admin {
 						'order'        => 'ASC',
 						'orderby'      => 'ID',
 						'tax_query'    => $tax_query, // phpcs:ignore
+						'posts_per_page' => get_option( 'wp-book-books-displayed-per-page', get_option( 'posts_per_page' ) ),
 					)
 				);
 
@@ -371,7 +384,7 @@ class Wp_Book_Admin {
 
 		$currency = get_option( 'wp-book-currency', 'INR' );
 
-		wp_nonce_field( 'wp-book-save-meta', 'wp-book-save-meta' );
+		// Adding nonce here creates problems while adding new post or deleting existing one.
 
 		?>
 		<table class="form-table">
@@ -428,14 +441,6 @@ class Wp_Book_Admin {
 	 * @param Boolean $update  Whether the post is being updated or not.
 	 */
 	public function save_metadata( $post_ID, $post, $update ) {
-		if ( $update ) {
-			$nonce = filter_input( INPUT_POST, 'wp-book-save-meta', FILTER_SANITIZE_STRING );
-			if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'wp-book-save-meta' ) ) {
-				echo esc_html__( 'Your nonce didn\'t verify.', 'wp-book' );
-				exit;
-			}
-		}
-
 		$author    = filter_input( INPUT_POST, 'author-name', FILTER_SANITIZE_STRING );
 		$price     = filter_input( INPUT_POST, 'price', FILTER_SANITIZE_STRING );
 		$publisher = filter_input( INPUT_POST, 'publisher', FILTER_SANITIZE_STRING );
@@ -446,6 +451,7 @@ class Wp_Book_Admin {
 		if ( ! empty( $author ) ) {
 			update_metadata( 'book', $post_ID, 'author-name', $author );
 		} else {
+			// If empty then delete, no point of storing them in database.
 			delete_metadata( 'book', $post_ID, 'author-name' );
 		}
 
