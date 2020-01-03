@@ -12,7 +12,7 @@
  *
  * @wordpress-plugin
  * Plugin Name:       WP Book
- * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
+ * Description:       A WordPress plugin to manage custom post types wp-books.
  * Version:           1.0.0
  * Author:            Siddharth
  * License:           GPL-2.0+
